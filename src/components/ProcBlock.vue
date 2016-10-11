@@ -20,18 +20,22 @@ export default {
     },
     used: {
       type: Number
-    }
-  },
-  data() {
-    return {
-      style: {
-        background: `linear-gradient(0deg,green ${_.floor(this.used * 100 / this.needs)}%,yellowgreen 0)`,
-        height: _.floor(this.needs / 1000) + 'rem'
-      }
+    },
+    index: {
+      type: Number
     }
   },
   mounted() {
     // console.log(`linear-gradient(0deg,green ${this.completedRatio}%,yellowgreen 0)`)
+  },
+  computed: {
+    style() {
+      return {
+        background: `linear-gradient(0deg,green ${_.floor(this.used * 100 / this.needs)}%,transparent 0)`,
+        height: _.floor(this.needs / 1000) + 'rem'
+          // transform: `translateX(${this.index * 2}rem)`
+      }
+    }
   }
 }
 </script>
@@ -41,17 +45,8 @@ export default {
   display: inline-block;
   margin: 0.5rem;
   padding: 10px;
-  transition: all 1s ease;
-}
-
-.slide-fade-enter-active {
-  transition: all .5s ease;
-}
-.slide-fade-leave-active {
-  transition: all .5s cubic-bezier(1.0, 0.5, 0.8, 1.0);
-}
-.slide-fade-enter, .slide-fade-leave-active {
-  top:5rem;
-  opacity: 0;
+  /*transition: all 1s ease;*/
+  border: 1px solid green;
+  /*position: absolute;*/
 }
 </style>
