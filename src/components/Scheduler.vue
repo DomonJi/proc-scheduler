@@ -2,23 +2,30 @@
   <div class="container">
     <div class="procs-container">
       <transition-group name="list-complete" tag="div">
-        <div class="proc-block" v-for="(proc,index) in procQueue" :style="getStyleOfIndex(index)" :key="proc.id"></div>
+        <div class="proc-block"
+          v-for="(proc,index) in completed"
+          :style="getCompletedStyle(index)"
+          :key="proc.id"></div>
       </transition-group>
+      <transition-group name="list-complete" tag="div">
+        <div class="proc-block"
+          v-for="(proc,index) in procQueue"
+          :style="getStyleOfIndex(index)"
+          :key="proc.id"></div>
+      </transition-group>
+
     </div>
+    <div class="arrow">
+        <p>
+          进程优先级由高到低
+        </p>
+      </div>
   </div>
 </template>
 
 <script>
 import _ from 'lodash'
-import ProcBlock from './ProcBlock'
-// var procStates = {}
-// procStates.wait = 0
-// procStates.run = 1
-// procStates.finished = 2
 export default {
-  components: {
-    ProcBlock
-  },
   props: {
     procNum: {
       type: Number,
@@ -26,14 +33,15 @@ export default {
     },
     timeUnit: {
       type: Number,
-      default: 200
+      default: 400
     }
   },
   data() {
     return {
       procQueue: [],
       current: 0,
-      completed: []
+      completed: [],
+      hangup: true
     }
   },
   methods: {
@@ -42,25 +50,24 @@ export default {
         id: this.current,
         priority: _.random(0, 10),
         enterTime: new Date().getTime(),
-        needs: _.random(100, 5000),
+        needs: _.random(100, 10000),
         used: 0,
         state: 0
       })
       this.current += 1
       this.sort()
+      if (this.hangup === true) {
+        this.run()
+      }
     },
     run() {
+      this.hangup = false
       let p = this.procQueue[0]
       this.proc(p).then((p) => {
         this.run()
-      }, (p) => {
-        if (this.procQueue[0].state !== 2) {
-          this.run()
-        }
       })
     },
     proc(p) {
-      this.sort()
       return new Promise((resolve, reject) => {
         if (p.state === 2) {
           reject(p)
@@ -70,8 +77,20 @@ export default {
         _.delay(() => {
           p.priority += 1
           p.used += this.timeUnit
-          p.state = p.used >= p.needs ? 2 : 0
-          resolve(p)
+          if (p.used >= p.needs) {
+            p.state = 2
+            this.sort()
+            this.procQueue.pop()
+            this.completed.push(p)
+          } else {
+            p.state = 0
+            this.sort()
+          }
+          if (this.procQueue.length > 0) {
+            resolve(p)
+          } else {
+            this.hangup = true
+          }
         }, this.timeUnit)
       })
     },
@@ -85,6 +104,12 @@ export default {
         background: `linear-gradient(0deg,yellowgreen ${ratio}%,transparent 0)`,
         height: _.floor(this.procQueue[index].needs / 1000) + 'rem'
       }
+    },
+    getCompletedStyle(index) {
+      return {
+        background: 'grey',
+        height: _.floor(this.completed[index].needs / 1000) + 'rem'
+      }
     }
   },
   created() {
@@ -96,7 +121,7 @@ export default {
     this.run()
     setInterval(() => {
       this.addProc()
-    }, _.random(2000, 5000))
+    }, _.random(2000, 6000))
   }
 }
 </script>
@@ -125,9 +150,38 @@ export default {
 }
 .list-complete-enter, .list-complete-leave-active {
   opacity: 0;
-  transform: translateY(2rem);
+  transform: translateY(3rem);
 }
 .list-complete-leave-active {
   position: absolute;
+}
+
+.arrow {
+  display: inline-block;
+  height: .3rem;
+  width: 20rem;
+  background: linear-gradient(90deg,green 30%,yellowgreen 70%);
+  margin: 2rem auto;
+  position: relative;
+}
+.arrow::after{
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  right: -1rem;
+  transform:translateY(-0.35rem);
+  border-left: 1rem solid yellowgreen;
+  border-top: .5rem solid transparent;
+  border-bottom: .5rem solid transparent;
+  border-right: .5rem solid transparent;
+}
+
+.arrow p {
+  position: absolute;
+  top:.5rem;
+  left: 0;
+  right: 0;
+  color: green;
 }
 </style>
