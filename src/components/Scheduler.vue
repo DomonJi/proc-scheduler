@@ -1,13 +1,13 @@
 <template lang="html">
   <div class="container">
     <div class="procs-container">
-      <transition-group name="list-complete" tag="div">
+      <transition-group name="list-complete" tag="div" class="list-container">
         <div class="proc-block"
           v-for="(proc,index) in completed"
           :style="getCompletedStyle(index)"
           :key="proc.id"></div>
       </transition-group>
-      <transition-group name="list-complete" tag="div">
+      <transition-group name="list-complete" tag="div" class="list-container">
         <div class="proc-block"
           v-for="(proc,index) in procQueue"
           :style="getStyleOfIndex(index)"
@@ -19,7 +19,7 @@
         <p>
           进程优先级由高到低
         </p>
-      </div>
+     </div>
   </div>
 </template>
 
@@ -137,7 +137,7 @@ export default {
 
 .proc-block {
   display: inline-block;
-  margin: 0.5rem;
+  margin: 0.2rem;
   padding: 10px;
   border: 1px solid green;
   transition: all 1s;
@@ -184,4 +184,5 @@ export default {
   right: 0;
   color: green;
 }
+
 </style>
