@@ -1,29 +1,25 @@
-var QueueElement = function(element, priority) {
-  this.element = element
-  this.priority = priority
-}
-export default class PriorityQueue {
-  constructor() {
-    this.queue = []
-  }
-  enQueue(element, priority) {
-    let queueElement = new QueueElement(element, priority)
-    let added = false
-    for (let i = 0; i < this.queue.length; i++) {
-      if (queueElement.priority < this.queue[i].priority) {
-        this.queue.splice(i, 0, queueElement)
-        added = true
-        break
+class PriorityQueue extends Array {
+  enqueue(element) {
+    if (element.hasOwnProperty('priority')) {
+      let added = false
+      for (let i = 0; i < this.length; i++) {
+        if (element.priority < this[i].priority) {
+          this.splice(i, 0, element)
+          added = true
+          break
+        }
       }
-    }
-    if (!added) {
-      this.queue.push(queueElement)
+      if (!added) {
+        this.push(element)
+      }
+    } else {
+      throw new Error('PriorityQueue element must have property of "priority"')
     }
   }
   dequeue() {
-    return this.queue.shift()
+    return this.shift()
   }
   first() {
-    return this.queue[0]
+    return this[0]
   }
 }
